@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Phunware Android SDK</string>
+
+    <string name="title_activity_interstitial">InterstitialActivity</string>
+</resources>
