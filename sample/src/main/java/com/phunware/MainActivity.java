@@ -28,6 +28,7 @@ import com.phunware.android.Interstitial;
 import com.phunware.android.AdListener;
 import com.phunware.android.ErrorCode;
 import com.phunware.android.Phunware;
+import com.phunware.android.VASTVideo;
 
 import java.util.Date;
 import java.util.Random;
@@ -116,6 +117,11 @@ public class MainActivity extends AppCompatActivity {
                 super.onAdClicked();
             }
         });
+    }
+
+    public void onGetVastClick(View view){
+        VASTVideo vastVideo = new VASTVideo(this, 174812,6459,61936);
+        vastVideo.play();
     }
 
 

@@ -16,8 +16,9 @@ public class VideoPlayer extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.video_player);
         String url = getIntent().getStringExtra("URL");
+        String body = getIntent().getStringExtra("BODY");
 
-// Save the web view
+        // Save the web view
         webView = (VideoEnabledWebView)findViewById(R.id.webView);
 
         // Initialize the VideoEnabledWebChromeClient and set event handlers
@@ -72,7 +73,13 @@ public class VideoPlayer extends AppCompatActivity {
         webView.setWebViewClient(new InsideWebViewClient());
 
         // Navigate anywhere you want, but consider that this classes have only been tested on YouTube's mobile site
-        webView.loadUrl(url);
+        if(url != null){
+            webView.loadUrl(url);
+        }
+        else if(body != null){
+
+            webView.loadDataWithBaseURL("http://ssp-r.phunware.com", body, "text/html; charset=utf-8", "UTF-8", null);
+        }
 
     }
 
@@ -104,54 +111,5 @@ public class VideoPlayer extends AppCompatActivity {
         }
     }
 
-
-//    public void load(String url){
-//        FrameLayout container = findViewById(R.id.video_container);
-//        WebView webView = new WebView(this);
-//        webView.setWebViewClient(new WebViewClient());
-//        webView.setWebChromeClient(new WebChromeClient());
-//        webView.getSettings().setJavaScriptEnabled(true);
-//        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
-//        webView.getSettings().setPluginState(WebSettings.PluginState.ON);
-//
-//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){
-//            webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
-//        }
-//
-//        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-//        params.gravity = Gravity.CENTER;
-//        webView.setLayoutParams(params);
-//        container.addView(webView);
-//        webView.loadUrl(url);
-//        addCloseButton();
-//    }
-//
-//    public void addCloseButton(){
-//        FrameLayout closeButton = new FrameLayout(this);
-//        int width = MRAIDUtilities.convertDpToPixel(50, this);
-//        int height = MRAIDUtilities.convertDpToPixel(50, this);
-//        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(width, height);
-//        params.gravity = Gravity.TOP | Gravity.RIGHT;
-//        addContentView(closeButton, params);
-//
-//        closeButton.setBackgroundColor(0xaa000000);
-//        TextView tv = new TextView(this);
-//        FrameLayout.LayoutParams tparams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-//        tparams.gravity = Gravity.CENTER;
-//        Typeface font = Typeface.create("Droid Sans Mono", Typeface.NORMAL);
-//        tv.setTextColor(Color.WHITE);
-//        tv.setTypeface(font);
-//        tv.setText("X");
-//        tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 24f);
-//        closeButton.addView(tv);
-//        tv.setLayoutParams(tparams);
-//        tv.bringToFront();
-//        closeButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                finish();
-//            }
-//        });
-//    }
 
 }
