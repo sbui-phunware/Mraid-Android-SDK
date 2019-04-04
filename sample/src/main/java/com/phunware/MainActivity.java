@@ -119,11 +119,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void onGetVastClick(View view){
-        VASTVideo vastVideo = new VASTVideo(this, 174812,6459,61936);
-        vastVideo.play();
-    }
-
 
     public void onGetBannerClick(View view){
         FragmentManager fm = getFragmentManager();
