@@ -8,7 +8,7 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class VideoPlayer extends AppCompatActivity {
+class VideoPlayer extends AppCompatActivity {
     VideoEnabledWebView webView;
     VideoEnabledWebChromeClient webChromeClient;
     @Override

@@ -38,7 +38,7 @@ import java.util.Calendar;
  * Does not support MRAID, just simple html interstitials.
  */
 @Deprecated
-public class PhunwareInterstitialView extends WebView {
+class PhunwareInterstitialView extends WebView {
 
     public Placement placement;
 

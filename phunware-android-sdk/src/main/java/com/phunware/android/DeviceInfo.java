@@ -7,7 +7,7 @@ import android.util.Log;
 
 import java.util.Locale;
 
-public class DeviceInfo {
+class DeviceInfo {
 
     public String language;
     public String manufacturer;

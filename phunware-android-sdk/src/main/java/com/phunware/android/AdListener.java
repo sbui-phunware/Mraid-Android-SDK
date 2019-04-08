@@ -1,7 +1,7 @@
 package com.phunware.android;
 
 /**
- * An Phunware ad listener to listen for ad events.
+ * A Phunware ad listener to listen for ad events. (Abstract Class)
  */
 public abstract class AdListener {
     /**

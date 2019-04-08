@@ -8,7 +8,7 @@ import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-public class NetworkInfo {
+class NetworkInfo {
 
     public String networkClass = null;
     public String carrierName = null;

@@ -8,8 +8,17 @@ import android.webkit.WebView;
 
 import java.util.Calendar;
 
+/**
+ * If you want to get the placement directly, and create your own way of displaying them, you can do so using this object.
+ */
 public class PlacementRequest {
-
+    /**
+     * Creates a PlacementRequest
+     * @param request AdRequest object containing all required mediation data.
+     * @param context The context from which the ad request will be made.
+     * @param listener A delegate containing event functions for the ad to call.
+     * @param placementListener A delegate overriding the success or failure methods of the request.
+     */
     public PlacementRequest(AdRequest request, Context context, AdListener listener, PlacementResponseListener placementListener){
         Log.d("Ads/Phunware", "Phunware AdMob SDK v" + BuildConfig.VERSION_NAME + " - Beginning Ad Fetch");
 

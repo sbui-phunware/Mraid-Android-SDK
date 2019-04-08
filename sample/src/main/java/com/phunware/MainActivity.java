@@ -24,11 +24,10 @@ import android.support.v7.app.AppCompatActivity;
 import com.phunware.android.AdRequest;
 import com.phunware.android.BannerView;
 import com.phunware.android.Positions;
-import com.phunware.android.Interstitial;
+import com.phunware.android.InterstitialView;
 import com.phunware.android.AdListener;
 import com.phunware.android.ErrorCode;
 import com.phunware.android.Phunware;
-import com.phunware.android.VASTVideo;
 
 import java.util.Date;
 import java.util.Random;
@@ -43,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private BannerView bannerView;
-    private Interstitial interstitial;
+    private InterstitialView interstitial;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -61,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onGetInterstitialClick(View view){
-        interstitial = new Interstitial();
+        interstitial = new InterstitialView();
         AdRequest request = new AdRequest(174812, 335348);
         request.setCoppa(0);
         request.setAge(30);

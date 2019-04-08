@@ -3,7 +3,7 @@ package com.phunware.android;
 import java.util.concurrent.atomic.AtomicInteger;
 
 // https://stackoverflow.com/questions/1714297/android-view-setidint-id-programmatically-how-to-avoid-id-conflicts
-public class Utilities {
+class Utilities {
     private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
 
     /**
