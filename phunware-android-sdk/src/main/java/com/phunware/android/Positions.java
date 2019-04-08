@@ -1,5 +1,8 @@
 package com.phunware.android;
 
+/**
+ * Positions where a banner ad can be placed on screen.
+ */
 public class Positions {
     public static String TOP_LEFT = "top-left";
     public static String TOP_CENTER = "top-center";

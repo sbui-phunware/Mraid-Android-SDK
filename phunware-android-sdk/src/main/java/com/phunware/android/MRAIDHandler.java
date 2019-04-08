@@ -28,7 +28,7 @@ import com.google.gson.GsonBuilder;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 
-public class MRAIDHandler {
+class MRAIDHandler {
 
     public String state = States.LOADING;
     public boolean isInterstitial = false;

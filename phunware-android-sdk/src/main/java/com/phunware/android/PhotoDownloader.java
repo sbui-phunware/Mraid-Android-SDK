@@ -28,7 +28,7 @@ import java.util.Date;
  *  https://android--examples.blogspot.com/2017/02/android-download-image-from-url-example.html
  */
 
-public class PhotoDownloader {
+class PhotoDownloader {
 
     private ProgressDialog mProgressDialog;
     private Activity context;

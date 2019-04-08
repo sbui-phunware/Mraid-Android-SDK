@@ -1,6 +1,6 @@
 package com.phunware.android;
 
-public interface MRAIDListener {
+interface MRAIDListener {
     // stuff that interstitial and banner ads should handle differently
     void open(String url);
     void close();

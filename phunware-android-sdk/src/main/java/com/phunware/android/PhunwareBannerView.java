@@ -38,7 +38,7 @@ import java.util.Calendar;
  * Does not support MRAID, just regular html and image banners.
  */
 @Deprecated
-public class PhunwareBannerView extends WebView {
+class PhunwareBannerView extends WebView {
 
     public Placement placement;
 

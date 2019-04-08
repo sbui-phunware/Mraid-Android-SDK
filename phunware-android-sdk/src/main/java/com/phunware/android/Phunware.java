@@ -40,11 +40,10 @@ public class Phunware {
 
     private static Phunware instance;
 
-    public enum AdTypes {
-        BANNER,
-        INTERSTITIAL
-    }
-
+    /**
+     * The Phunware object is a singleton.
+     * @return Phunware
+     */
     public static Phunware getInstance() {
         if (null == instance) {
             instance = new Phunware();
@@ -52,12 +51,16 @@ public class Phunware {
         return instance;
     }
 
+    /**
+     * Required to be called at least once before you retrieve ads.
+     * @param context
+     */
     public static void initialize(Context context) {
         Phunware phunwareSDK = Phunware.getInstance();
         phunwareSDK.init(context);
     }
 
-    public void init(Context context) {
+    protected void init(Context context) {
         if (isInitialized) {
             Log.w("Ads/Phunware", "Please try to avoid initializing the PhunwareSDK multiple times.");
             return;
@@ -77,16 +80,32 @@ public class Phunware {
         }
     }
 
+    /**
+     * Set the host name.
+     * @param apiHostname
+     */
     public void setApiHostname(String apiHostname) {
         this.apiHostname = apiHostname;
     }
 
+    /**
+     * Set the app version.
+     * @param apiAppVersion
+     */
     public void setApiAppVersion(String apiAppVersion) {
         this.apiAppVersion = apiAppVersion;
     }
 
+    /**
+     * Used to set whether or not personal data can be sent to mediation.  (GDPR consent)
+     * @param allowed
+     */
     public static void setPersonalAdsAllowed(boolean allowed){ getInstance().personalAdsAllowed = allowed; }
 
+    /**
+     * Used to determin if personal data can be sent to mediation.
+     * @return
+     */
     public static boolean isPersonalAdsAllowed(){ return getInstance().personalAdsAllowed; }
 
     /**
@@ -361,19 +380,9 @@ public class Phunware {
         return URLEncoder.encode(param).replaceAll("\\+", "%20");
     }
 
+    protected static AdvertisingInfo AdvertisingInfo;
 
-
-
-
-
-
-
-
-
-
-    public static AdvertisingInfo AdvertisingInfo;
-
-    public static class AdvertisingInfo {
+    protected static class AdvertisingInfo {
         public final String advertisingId;
         public final boolean limitAdTrackingEnabled;
 

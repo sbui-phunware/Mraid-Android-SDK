@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class HTTPGet extends AsyncTask<String, Void, Void> {
+class HTTPGet extends AsyncTask<String, Void, Void> {
     HTTPGetListener listener;
     public HTTPGet(HTTPGetListener listener){
         this.listener = listener;

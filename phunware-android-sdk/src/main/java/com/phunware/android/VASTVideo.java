@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.content.Context;
 import java.util.List;
 
-public class VASTVideo {
+class VASTVideo {
 
     private Context context;
     private int zoneID;
