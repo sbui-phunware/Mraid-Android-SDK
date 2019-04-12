@@ -2,9 +2,10 @@ package com.phunware.android;
 
 import android.content.Intent;
 import android.content.Context;
+
 import java.util.List;
 
-class VASTVideo {
+public class VASTVideo {
 
     private Context context;
     private int zoneID;
@@ -12,6 +13,15 @@ class VASTVideo {
     private int publisherID;
     private String poster;
     private List<Source> sources;
+    private static VASTListener listenerInstance;
+
+    private void setListenerInstance(VASTListener listener){
+        VASTVideo.listenerInstance = listener;
+    }
+
+    protected static VASTListener getListenerInstance(){
+        return VASTVideo.listenerInstance;
+    }
 
     private class Source {
         protected String source;
@@ -23,11 +33,12 @@ class VASTVideo {
         }
     }
 
-    public VASTVideo(Context context, int accountID, int zoneID, int publisherID){
+    public VASTVideo(Context context, int accountID, int zoneID, int publisherID, VASTListener listener){
         this.context = context;
         this.zoneID = zoneID;
         this.accountID = accountID;
         this.publisherID = publisherID;
+        setListenerInstance(listener);
     }
 
     public void addSoure(String source, String type){

@@ -7,16 +7,21 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 
 class VideoPlayer extends AppCompatActivity {
     VideoEnabledWebView webView;
     VideoEnabledWebChromeClient webChromeClient;
+    VASTListener listener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.video_player);
         String url = getIntent().getStringExtra("URL");
         String body = getIntent().getStringExtra("BODY");
+        listener = VASTVideo.getListenerInstance();
 
         // Save the web view
         webView = (VideoEnabledWebView)findViewById(R.id.webView);
@@ -34,6 +39,7 @@ class VideoPlayer extends AppCompatActivity {
             {
                 // Your code...
             }
+
         };
         webChromeClient.setOnToggledFullscreen(new VideoEnabledWebChromeClient.ToggledFullscreenCallback()
         {
@@ -67,6 +73,8 @@ class VideoPlayer extends AppCompatActivity {
                 }
 
             }
+
+
         });
         webView.setWebChromeClient(webChromeClient);
         // Call private class InsideWebViewClient
@@ -77,8 +85,7 @@ class VideoPlayer extends AppCompatActivity {
             webView.loadUrl(url);
         }
         else if(body != null){
-
-            webView.loadDataWithBaseURL("http://ssp-r.phunware.com", body, "text/html; charset=utf-8", "UTF-8", null);
+            webView.loadDataWithBaseURL("http://ssp-r.phunware.com", body, "text/html; charset=utf-8", "UTF-8", "");
         }
 
     }
@@ -90,6 +97,95 @@ class VideoPlayer extends AppCompatActivity {
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             view.loadUrl(url);
             return true;
+        }
+
+        @Override
+        // Phunware,  get vast events from js library
+        public WebResourceResponse shouldInterceptRequest (WebView view, String url){
+            if(url.contains("vast://")){
+                handleEvent(url);
+                return null;
+            }
+            return super.shouldInterceptRequest(view, url);
+        }
+    }
+
+    private void handleEvent(String url){
+        String event = url.replaceFirst("vast://", "");
+        switch(event){
+            case "mute":
+                listener.onMute();
+                break;
+            case "unmute":
+                listener.onUnmute();
+                break;
+            case "pause":
+                listener.onPause();
+                break;
+            case "resume":
+                listener.onResume();
+                break;
+            case "rewind":
+                listener.onRewind();
+                break;
+            case "skip":
+                listener.onSkip();
+                break;
+            case "playerExpand":
+                listener.onPlayerExpand();
+                break;
+            case "playerCollapse":
+                listener.onPlayerCollapse();
+                break;
+            case "notUsed":
+                listener.onNotUsed();
+                break;
+            case "loaded":
+                listener.onLoaded();
+                break;
+            case "start":
+                listener.onStart();
+                break;
+            case "firstQuartile":
+                listener.onFirstQuartile();
+                break;
+            case "midpoint":
+                listener.onMidpoint();
+                break;
+            case "thirdQuartile":
+                listener.onThirdQuartile();
+                break;
+//            case "otherAdInteraction":
+//                listener.onOtherAdInteraction();
+//                break;
+            case "complete":
+                listener.onComplete();
+                break;
+            case "closeLinear":
+                listener.onCloseLinear();
+                break;
+//                                future additions
+//            case "creativeView":
+//                listener.onCreativeView();
+//                break;
+//            case "acceptInvitation":
+//                listener.onAcceptInvitation();
+//                break;
+//            case "adExpand":
+//                listener.onAdExpand();
+//                break;
+//            case "adCollapse":
+//                listener.onAdCollapse();
+//                break;
+//            case "minimize":
+//                listener.onMinimize();
+//                break;
+//            case "close":
+//                listener.onClose();
+//                break;
+//            case "overlayViewDuration":
+//                listener.onOverlayViewDuration();
+//                break;
         }
     }
 
@@ -113,3 +209,4 @@ class VideoPlayer extends AppCompatActivity {
 
 
 }
+
