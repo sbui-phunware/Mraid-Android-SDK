@@ -53,15 +53,6 @@
                 />
         </FrameLayout>
 
-
-        <com.google.android.gms.ads.doubleclick.PublisherAdView
-            android:id="@+id/customevent_adview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            ads:adSize="BANNER"
-            ads:adUnitId="ca-app-pub-9846203962342472/9277587471" />
-
     </LinearLayout>
 
 </ScrollView>
