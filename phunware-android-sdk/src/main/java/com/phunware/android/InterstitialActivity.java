@@ -20,8 +20,10 @@ import android.widget.TextView;
 import java.util.Timer;
 import java.util.TimerTask;
 
-
-class InterstitialActivity extends AppCompatActivity {
+/**
+ * When shown, an Interstitial will create it's own activity.
+ */
+public class InterstitialActivity extends AppCompatActivity {
     WebView webView;
 
     LinearLayout root;
