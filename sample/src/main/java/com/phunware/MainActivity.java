@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
     public void onGetBannerClick(View view){
         FragmentManager fm = getFragmentManager();
         bannerView = (BannerView)fm.findFragmentById(R.id.phunware_fragment);
-        AdRequest request = new AdRequest(174812, 335341);
+        AdRequest request = new AdRequest(172084, 357451);
         request.setCoppa(0);
         request.setAge(30);
         request.setGender(getUserGender());

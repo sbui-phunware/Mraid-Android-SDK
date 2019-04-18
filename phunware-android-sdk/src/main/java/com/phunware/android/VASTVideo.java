@@ -3,9 +3,18 @@ package com.phunware.android;
 import android.content.Intent;
 import android.content.Context;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import java.io.StringReader;
 import java.util.List;
 
-public class VASTVideo {
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+
+public class VASTVideo implements HTTPGetListener {
 
     private Context context;
     private int zoneID;
@@ -38,7 +47,28 @@ public class VASTVideo {
         this.zoneID = zoneID;
         this.accountID = accountID;
         this.publisherID = publisherID;
+        getVastContent();
         setListenerInstance(listener);
+    }
+
+    private void getVastContent(){
+        String url =  String.format("https://ssp-r.phunware.com/vast.spark?setID=%d&ID=%d&pid=%d", this.zoneID, this.accountID, this.publisherID);
+        // async http get
+        new HTTPGet(this).execute(url);
+    }
+
+    public void HTTPGetCallback(String str){
+        final String body = str;
+        // deserialize
+        try{
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(new InputSource(new StringReader(str)));
+            NodeList nodes = doc.getElementsByTagName("CompanionAds");
+            int test = 0;
+        }catch(Exception ex){
+            int test = 0;
+        }
     }
 
     public void addSoure(String source, String type){
