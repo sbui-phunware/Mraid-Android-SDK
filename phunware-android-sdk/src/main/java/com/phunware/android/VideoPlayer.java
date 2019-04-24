@@ -1,5 +1,6 @@
 package com.phunware.android;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -10,10 +11,22 @@ import android.webkit.WebViewClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 
-class VideoPlayer extends AppCompatActivity {
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import java.io.StringReader;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
     VideoEnabledWebView webView;
     VideoEnabledWebChromeClient webChromeClient;
     VASTListener listener;
+    String vastURL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,8 +34,10 @@ class VideoPlayer extends AppCompatActivity {
         setContentView(R.layout.video_player);
         String url = getIntent().getStringExtra("URL");
         String body = getIntent().getStringExtra("BODY");
+        vastURL = getIntent().getStringExtra("vastURL");
         listener = VASTVideo.getListenerInstance();
-
+        // async get vast content to find companion end cards
+        getVastContent();
         // Save the web view
         webView = (VideoEnabledWebView)findViewById(R.id.webView);
 
@@ -207,6 +222,70 @@ class VideoPlayer extends AppCompatActivity {
         }
     }
 
+    private void getVastContent(){
+        new HTTPGet(this).execute(vastURL);
+    }
 
+    public void HTTPGetCallback(String str){
+        final String body = str;
+        Node bestFit = null;
+        // deserialize
+        try{
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(new InputSource(new StringReader(str)));
+            NodeList nodes = doc.getElementsByTagName("Companion");
+            if(nodes.getLength() > 0){
+                bestFit = findBestCompanion(nodes);
+            }
+        }catch(Exception ex){
+            System.out.println("PW - Problem finding end card companion.");
+        }
+
+        if(bestFit != null) {
+            constructEndCard(bestFit);
+        }
+    }
+
+    private void constructEndCard(Node node){
+        VASTCompanion companion = new VASTCompanion();
+        NodeList children = node.getChildNodes();
+        for(int i = 0; i < children.getLength(); i++){
+            Node n = children.item(i);
+            switch(n.getNodeName()){
+                case "StaticResource":
+                    companion.staticResource = n.getFirstChild().getNodeValue();
+                    break;
+                case "TrackingEvents":
+                    NodeList events = n.getChildNodes();
+                    for(int c = 0; c < events.getLength(); c++){
+                        companion.trackingEvents.add(events.item(c).getFirstChild().getNodeValue());
+                    }
+                    break;
+                case "CompanionClickThrough":
+                    companion.clickThrough = n.getFirstChild().getNodeValue();
+                    break;
+                default:break;
+            }
+        }
+    }
+
+    private Node findBestCompanion(NodeList list){
+        Rect rect = MRAIDUtilities.getFullScreenRectDP(this);
+        Node curBest = null;
+        float aspectRatio = (float)rect.width / (float)rect.height;
+        float closestRatio = 0f;
+        for(int i=0; i < list.getLength(); i++){
+            NamedNodeMap map = list.item(i).getAttributes();
+            int w = Integer.parseInt(map.getNamedItem("width").getNodeValue());
+            int h = Integer.parseInt(map.getNamedItem("height").getNodeValue());
+            float r = (float)w / (float)h;
+            if(i == 0 || aspectRatio - r < closestRatio){
+                closestRatio = r;
+                curBest = list.item(i);
+            }
+        }
+        return curBest;
+    }
 }
 
