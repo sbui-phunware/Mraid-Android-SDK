@@ -195,9 +195,6 @@ class InterstitialActivity extends AppCompatActivity {
                 fadeTimer = null;
             }
         }
-        else{
-            // whoa there ... chill.
-        }
     }
 
     @Override

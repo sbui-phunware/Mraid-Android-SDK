@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onGetVASTClick(View view){
-        VASTVideo vast = new VASTVideo(this, 172084, 6249, 51080, new VASTListener() {
+        VASTVideo vast = new VASTVideo(this, 174812, 5938, 61774, new VASTListener() {
             @Override
             public void onMute() {
                 System.out.println("mute");
@@ -270,6 +270,7 @@ public class MainActivity extends AppCompatActivity {
                 super.onCloseLinear();
             }
         });
+        vast.setEndCardCloseTime(5);
         vast.play();
     }
 

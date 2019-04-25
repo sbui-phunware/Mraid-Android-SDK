@@ -1,20 +1,8 @@
 package com.phunware.android;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.Context;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-
-import java.io.StringReader;
 import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 
 public class VASTVideo {
@@ -23,10 +11,10 @@ public class VASTVideo {
     private int zoneID;
     private int accountID;
     private int publisherID;
-    private String poster;
+    private String poster;// = "https://ssp-r.phunware.com/assets/blacksquare.png";
     private List<Source> sources;
     private static VASTListener listenerInstance;
-    private VASTCompanion endCard;
+    private int closeTimer = 0;
 
     private void setListenerInstance(VASTListener listener){
         VASTVideo.listenerInstance = listener;
@@ -54,16 +42,43 @@ public class VASTVideo {
         setListenerInstance(listener);
     }
 
-
-
+    /**
+     * If there is meant to be a source video (not just an ad) you can add it with this method.
+     * @param source The source url.
+     * @param type The MIME type of the video, e.g. "video/mp4"
+     */
     public void addSoure(String source, String type){
         sources.add(new Source(source, type));
     }
 
+    /**
+     * Used to set the number of seconds before the close button can be clicked on end cards.
+     * @param seconds
+     */
+    public void setEndCardCloseTime(int seconds){
+        closeTimer = seconds;
+    }
+
+    /**
+     * Gets the number of seconds before the close button can be clicked on end cards.
+     * @return Number of seconds.
+     */
+    public int getEndCardCloseTime(){
+        return closeTimer;
+    }
+
+    public void setDefaultPoster(String posterUrl){
+        poster = posterUrl;
+    }
+
+    /**
+     * Plays the VAST video ad.
+     */
     public void play(){
         Intent intent = new Intent(context, VideoPlayer.class);
         intent.putExtra("BODY", getVideoJSMarkup());
         intent.putExtra("vastURL", String.format("https://ssp-r.phunware.com/vast.spark?setID=%d&ID=%d&pid=%d", this.zoneID, this.accountID, this.publisherID));
+        intent.putExtra("closeTimer", closeTimer);
         context.startActivity(intent);
     }
 
@@ -79,7 +94,7 @@ public class VASTVideo {
         str.append("</head>");
         str.append("<body style=\"margin:0px; background-color:black\">");
         str.append("<video id=\"pw_video\" class=\"video-js vjs-default-skin\" playsinline=\"true\" autoplay muted ");
-        str.append("controls preload=\"auto\" width=\"100%\" height=\"100%\"");
+        str.append("controls preload=\"auto\" width=\"100%\" height=\"100%\" ");
         if(this.poster != null){
             str.append(String.format("poster=\"%s\" ", this.poster));
         }
