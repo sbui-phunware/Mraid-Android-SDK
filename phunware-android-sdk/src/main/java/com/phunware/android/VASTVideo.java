@@ -14,7 +14,6 @@ public class VASTVideo {
     private String poster;// = "https://ssp-r.phunware.com/assets/blacksquare.png";
     private List<Source> sources;
     private static VASTListener listenerInstance;
-    private int closeTimer = 0;
 
     private void setListenerInstance(VASTListener listener){
         VASTVideo.listenerInstance = listener;
@@ -51,22 +50,6 @@ public class VASTVideo {
         sources.add(new Source(source, type));
     }
 
-    /**
-     * Used to set the number of seconds before the close button can be clicked on end cards.
-     * @param seconds
-     */
-    public void setEndCardCloseTime(int seconds){
-        closeTimer = seconds;
-    }
-
-    /**
-     * Gets the number of seconds before the close button can be clicked on end cards.
-     * @return Number of seconds.
-     */
-    public int getEndCardCloseTime(){
-        return closeTimer;
-    }
-
     public void setDefaultPoster(String posterUrl){
         poster = posterUrl;
     }
@@ -77,7 +60,6 @@ public class VASTVideo {
     public void play(){
         Intent intent = new Intent(context, VideoPlayer.class);
         intent.putExtra("BODY", getVideoJSMarkup());
-        intent.putExtra("closeTimer", closeTimer);
         context.startActivity(intent);
     }
 

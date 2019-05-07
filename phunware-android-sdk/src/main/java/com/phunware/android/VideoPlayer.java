@@ -29,27 +29,25 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-public class VideoPlayer extends AppCompatActivity {
+public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
     VideoEnabledWebView webView;
     VideoEnabledWebChromeClient webChromeClient;
     VASTListener listener;
     VASTCompanion endCard;
     AppCompatActivity me = this;
 
-    private int closeTimer;
     private TextView closeButton;
-    private int fontSize = 20;
+    private boolean closeButtonVisible = false;
 
-
-//    long tapTime;
-//    long releaseTime;
-//    long tapDelay = 200; // 200 milliseconds or less counts as a click
+    long tapTime;
+    long releaseTime;
+    long tapDelay = 200; // 200 milliseconds or less counts as a click
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,11 +55,9 @@ public class VideoPlayer extends AppCompatActivity {
         setContentView(R.layout.video_player);
         String url = getIntent().getStringExtra("URL");
         String body = getIntent().getStringExtra("BODY");
-        closeTimer = getIntent().getIntExtra("closeTimer", 0);
         listener = VASTVideo.getListenerInstance();
         // Save the web view
         webView = findViewById(R.id.webView);
-
         // Initialize the VideoEnabledWebChromeClient and set event handlers
         View nonVideoLayout = findViewById(R.id.nonVideoLayout); // Your own view, read class comments
         ViewGroup videoLayout = findViewById(R.id.videoLayout); // Your own view, read class comments
@@ -148,8 +144,8 @@ public class VideoPlayer extends AppCompatActivity {
                 Intent intent = new Intent(me, BrowserView.class);
                 intent.putExtra("URL", url);
                 me.startActivity(intent);
-                return false;
             }else{
+                System.out.println("URL REACHED =====  " + url);
                 view.loadUrl(url);
             }
             return true;
@@ -175,6 +171,7 @@ public class VideoPlayer extends AppCompatActivity {
                 listener.onRewind();
                 break;
             case "skip":
+                listener.onSkip();
                 if(endCard != null && endCard.staticResource != null){
                     runOnUiThread(new Runnable(){
                         @Override
@@ -182,8 +179,9 @@ public class VideoPlayer extends AppCompatActivity {
                             displayEndCard();
                         }
                     });
+                } else {
+                    finish();
                 }
-                listener.onSkip();
                 break;
             case "playerExpand":
                 listener.onPlayerExpand();
@@ -213,6 +211,7 @@ public class VideoPlayer extends AppCompatActivity {
 //                listener.onOtherAdInteraction();
 //                break;
             case "complete":
+                listener.onComplete();
                 if(endCard != null && endCard.staticResource != null){
                     runOnUiThread(new Runnable(){
                         @Override
@@ -220,8 +219,10 @@ public class VideoPlayer extends AppCompatActivity {
                             displayEndCard();
                         }
                     });
+                } else{
+                    finish();
                 }
-                listener.onComplete();
+
                 break;
             case "closeLinear":
                 listener.onCloseLinear();
@@ -258,7 +259,10 @@ public class VideoPlayer extends AppCompatActivity {
             // Notify the VideoEnabledWebChromeClient, and handle it ourselves if it doesn't handle it
             if (!webChromeClient.onBackPressed())
             {
-                if (webView.canGoBack())
+                if(closeButtonVisible){
+
+                }
+                else if (webView.canGoBack())
                 {
                     webView.goBack();
                 }
@@ -320,7 +324,7 @@ public class VideoPlayer extends AppCompatActivity {
                 case "TrackingEvents":
                     NodeList events = n.getChildNodes();
                     for(int c = 0; c < events.getLength(); c++){
-                        endCard.trackingEvents.add(events.item(c).getFirstChild().getNodeValue());
+                        endCard.trackingEvents.put(events.item(c).getAttributes().getNamedItem("event").getNodeValue(), events.item(c).getFirstChild().getNodeValue());
                     }
                     break;
                 case "CompanionClickThrough":
@@ -356,7 +360,47 @@ public class VideoPlayer extends AppCompatActivity {
     private void displayEndCard(){
         String markup = getEndCardMarkup();
         webView.loadDataWithBaseURL("https://ssp-r.phunware.com", markup,"text/html; charset=utf-8", "UTF-8", "");
+        Iterator i = endCard.trackingEvents.entrySet().iterator();
+        while (i.hasNext()) {
+            Map.Entry keyVal = (Map.Entry)i.next();
+            if(keyVal.getKey().equals("creativeView")){
+                try{
+                    new HTTPGet(this).execute((String)keyVal.getValue());
+                } catch(Exception ex){
+                    Log.e("Ads:Phuwnare", "Error reporting companion view event.");
+                }
+            }
+            i.remove();
+        }
+        webView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        tapTime = new Date().getTime();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        releaseTime = new Date().getTime();
+                        if(releaseTime - tapTime < tapDelay){
+                            Intent intent = new Intent(me, BrowserView.class);
+                            intent.putExtra("URL", endCard.clickThrough);
+                            me.startActivity(intent);
+                        }
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        break;
+                    default:
+                        break;
+
+                }
+                return false;
+            }
+        });
         initializeCloseButton();
+    }
+
+    public void HTTPGetCallback(String str){
+        // no need to do anything
     }
 
     //TODO Refactor close buttons to a common place
@@ -384,6 +428,7 @@ public class VideoPlayer extends AppCompatActivity {
         final ViewGroup root = (ViewGroup) ((ViewGroup) this.findViewById(android.R.id.content)).getChildAt(0);
         root.bringChildToFront(item);
         item.addView(closeButton);
+        closeButtonVisible = true;
     }
 
     void setCloseButtonText(String text, float size){

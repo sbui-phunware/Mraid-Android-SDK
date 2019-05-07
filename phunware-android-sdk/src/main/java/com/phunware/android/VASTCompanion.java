@@ -1,14 +1,14 @@
 package com.phunware.android;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 class VASTCompanion {
     public String staticResource;
-    public List<String> trackingEvents;
+    public Map<String, String> trackingEvents;
     public String clickThrough;
 
     public VASTCompanion(){
-        trackingEvents = new ArrayList<>();
+        trackingEvents = new HashMap<String, String>();
     }
 }
