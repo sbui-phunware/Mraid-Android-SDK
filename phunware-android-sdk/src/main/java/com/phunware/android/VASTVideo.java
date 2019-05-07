@@ -77,7 +77,6 @@ public class VASTVideo {
     public void play(){
         Intent intent = new Intent(context, VideoPlayer.class);
         intent.putExtra("BODY", getVideoJSMarkup());
-        intent.putExtra("vastURL", String.format("https://ssp-r.phunware.com/vast.spark?setID=%d&ID=%d&pid=%d", this.zoneID, this.accountID, this.publisherID));
         intent.putExtra("closeTimer", closeTimer);
         context.startActivity(intent);
     }
@@ -101,7 +100,7 @@ public class VASTVideo {
         str.append("data-setup='{ ");
         str.append("\"plugins\": { ");
         str.append("\"vastClient\": { ");
-        str.append(String.format("\"adTagUrl\": \"https://ssp-r.phunware.com/vast.spark?setID=%d&ID=%d&pid=%d\", ", this.zoneID, this.accountID, this.publisherID));
+        str.append(String.format("\"adTagUrl\": \"https://ssp-r.phunware.com/vasttemp.spark?setID=%d&ID=%d&pid=%d\", ", this.zoneID, this.accountID, this.publisherID));
         str.append("\"adCancelTimeout\": 5000, ");
         str.append("\"adsEnabled\": true ");
         str.append("} ");

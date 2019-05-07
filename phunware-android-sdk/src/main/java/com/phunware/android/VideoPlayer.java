@@ -7,6 +7,7 @@ import android.graphics.Typeface;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -25,6 +26,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -32,11 +35,10 @@ import java.util.TimerTask;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
+public class VideoPlayer extends AppCompatActivity {
     VideoEnabledWebView webView;
     VideoEnabledWebChromeClient webChromeClient;
     VASTListener listener;
-    String vastURL;
     VASTCompanion endCard;
     AppCompatActivity me = this;
 
@@ -44,17 +46,10 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
     private TextView closeButton;
     private int fontSize = 20;
 
-    int closeFadeTime = 155; // milliseconds
-    int closeFadeRate = 25; // milliseconds
-    Timer countdownTimer;
-    Timer fadeTimer;
-    float fadeDirection = -1.0f;
-    float fadeAmountPerTick;
-    boolean closeClickable = false;
 
-    long tapTime;
-    long releaseTime;
-    long tapDelay = 200; // 200 milliseconds or less counts as a click
+//    long tapTime;
+//    long releaseTime;
+//    long tapDelay = 200; // 200 milliseconds or less counts as a click
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,12 +58,7 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
         String url = getIntent().getStringExtra("URL");
         String body = getIntent().getStringExtra("BODY");
         closeTimer = getIntent().getIntExtra("closeTimer", 0);
-        vastURL = getIntent().getStringExtra("vastURL");
         listener = VASTVideo.getListenerInstance();
-        if(vastURL != null && !vastURL.isEmpty()){
-            // async get vast content to find companion end cards
-            getVastContent();
-        }
         // Save the web view
         webView = findViewById(R.id.webView);
 
@@ -139,8 +129,18 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
         // Force links to be opened inside WebView and not in Default Browser
         // Thanks http://stackoverflow.com/a/33681975/1815624
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            System.out.println("----------==========--------   should override " + url + " --------============--------");
-            if(url.contains("vast://")){
+            if(url.contains("vast://vastresponse?xml=")){
+                String raw = url.replace("vast://vastresponse?xml=", "");
+                try {
+                    String xml = URLDecoder.decode(raw, "UTF-8");
+                    parseVASTContent(xml);
+                }
+                catch(UnsupportedEncodingException ex){
+                    Log.e("\"Ads/Phunware\"", "Unsupported encoding on VAST XML");
+                }
+                return false;
+            }
+            else if(url.contains("vast://")){
                 handleEvent(url);
                 return false;
             }
@@ -269,23 +269,10 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
                 }
             }
         }
-        else if(closeClickable){
-            finish();
-        }
-    }
-
-    private void getVastContent(){
-        new HTTPGet(this).execute(vastURL);
     }
 
 
-    /**
-     * Used to fetch information about VAST tags for use with end cards.
-     *
-     * (Interface method)
-     * @param str
-     */
-    public void HTTPGetCallback(String str){
+    private void parseVASTContent(String str){
         final String body = str;
         Node bestFit = null;
         // deserialize
@@ -296,6 +283,14 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
             NodeList nodes = doc.getElementsByTagName("Companion");
             if(nodes.getLength() > 0){
                 bestFit = findBestCompanion(nodes);
+            }
+
+            nodes = doc.getElementsByTagName("Linear");
+            if(nodes.getLength() > 0){
+                Node offset = nodes.item(0).getAttributes().getNamedItem("skipoffset");
+                if(offset == null){
+                    initializeCloseButton();
+                }
             }
         }catch(Exception ex){
             System.out.println("PW - Problem finding end card companion.");
@@ -361,30 +356,6 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
     private void displayEndCard(){
         String markup = getEndCardMarkup();
         webView.loadDataWithBaseURL("https://ssp-r.phunware.com", markup,"text/html; charset=utf-8", "UTF-8", "");
-        webView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        tapTime = new Date().getTime();
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        releaseTime = new Date().getTime();
-                        if(releaseTime - tapTime < tapDelay){
-                            Intent intent = new Intent(me, BrowserView.class);
-                            intent.putExtra("URL", endCard.clickThrough);
-                            me.startActivity(intent);
-                        }
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        break;
-                    default:
-                        break;
-
-                }
-                return false;
-            }
-        });
         initializeCloseButton();
     }
 
@@ -395,9 +366,9 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
         item.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-            if(closeClickable){
+            //if(closeClickable){
                 finish();
-            }
+            //}
             }
         });
         closeButton = new TextView(this);
@@ -409,75 +380,10 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
         closeButton.setGravity(Gravity.TOP | Gravity.RIGHT);
 
 
-        if(closeTimer > 0){
-            setCloseButtonText(Integer.toString(closeTimer), 20f);
-            countdownTimer = new Timer();
-            TimerTask countdown = new TimerTask() {
-                @Override
-                public void run(){
-                    runOnUiThread(new Runnable(){
-                        @Override
-                        public void run(){
-                            updateTimer();
-                        }
-                    });
-                }
-            };
-            countdownTimer.scheduleAtFixedRate(countdown, 0, 1000);
-        }else{
-            setCloseButtonText("X", 24f);
-            closeClickable = true;
-        }
+        setCloseButtonText("X", 24.0f);
         final ViewGroup root = (ViewGroup) ((ViewGroup) this.findViewById(android.R.id.content)).getChildAt(0);
         root.bringChildToFront(item);
         item.addView(closeButton);
-    }
-
-    void updateTimer(){
-        closeTimer -= 1;
-        if(closeTimer > 0){
-            setCloseButtonText(Integer.toString(closeTimer), fontSize);
-        }
-        else{
-            setCloseButtonActive();
-        }
-    }
-
-    void setCloseButtonActive(){
-        fadeAmountPerTick = ((float)closeFadeRate / (float)closeFadeTime);
-        countdownTimer.cancel();
-        countdownTimer = null;
-        closeClickable = true;
-        fadeTimer = new Timer();
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run(){
-            runOnUiThread(new Runnable(){
-                    @Override
-                    public void run(){
-                        updateTimerFade();
-                    }
-                });
-            }
-        };
-        fadeTimer.scheduleAtFixedRate(task, 0, (long)closeFadeRate);
-    }
-
-    void updateTimerFade(){
-
-        if(fadeTimer != null) {
-            float a = closeButton.getAlpha();
-            a += fadeAmountPerTick * fadeDirection;
-            closeButton.setAlpha(a);
-            if (closeButton.getAlpha() < 0) {
-                fadeDirection = 1.0f;
-                setCloseButtonText("X", 24.0f);
-            }
-            if (closeButton.getAlpha() >= 1) {
-                fadeTimer.cancel();
-                fadeTimer = null;
-            }
-        }
     }
 
     void setCloseButtonText(String text, float size){
