@@ -105,7 +105,6 @@ public class PlacementRequest {
         PlacementRequestConfig.Builder requestBuilder = new PlacementRequestConfig.Builder(request.getAccountID(), request.getZoneID());
 
         // Proper User Agent
-        // TODO pass webview in?
         requestBuilder.setUserAgent(new WebView(context).getSettings().getUserAgentString());
 
         // Advertising ID & DNT

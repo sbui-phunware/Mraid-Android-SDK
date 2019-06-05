@@ -23,7 +23,7 @@ class HTTPGet extends AsyncTask<String, Void, Void> {
         return null;
     }
 
-    public static String httpGet(String urlToRead) throws Exception {
+    protected static String httpGet(String urlToRead) throws Exception {
         StringBuilder result = new StringBuilder();
         URL url = new URL(urlToRead);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();

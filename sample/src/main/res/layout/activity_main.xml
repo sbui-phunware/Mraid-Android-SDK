@@ -42,6 +42,16 @@
             android:text="Get banner"
             />
 
+        <Button
+            android:id="@+id/btnGetVASTVideo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:onClick="onGetVASTClick"
+            android:text="Get VAST Video"
+            />
+
+
         <FrameLayout android:id="@+id/phunware_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent">

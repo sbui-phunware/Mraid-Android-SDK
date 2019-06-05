@@ -4,14 +4,24 @@ import android.content.Intent;
 import android.content.Context;
 import java.util.List;
 
-class VASTVideo {
+
+public class VASTVideo {
 
     private Context context;
     private int zoneID;
     private int accountID;
     private int publisherID;
-    private String poster;
+    private String poster;// = "https://ssp-r.phunware.com/assets/blacksquare.png";
     private List<Source> sources;
+    private static VASTListener listenerInstance;
+
+    private void setListenerInstance(VASTListener listener){
+        VASTVideo.listenerInstance = listener;
+    }
+
+    protected static VASTListener getListenerInstance(){
+        return VASTVideo.listenerInstance;
+    }
 
     private class Source {
         protected String source;
@@ -23,17 +33,30 @@ class VASTVideo {
         }
     }
 
-    public VASTVideo(Context context, int accountID, int zoneID, int publisherID){
+    public VASTVideo(Context context, int accountID, int zoneID, int publisherID, VASTListener listener){
         this.context = context;
         this.zoneID = zoneID;
         this.accountID = accountID;
         this.publisherID = publisherID;
+        setListenerInstance(listener);
     }
 
+    /**
+     * If there is meant to be a source video (not just an ad) you can add it with this method.
+     * @param source The source url.
+     * @param type The MIME type of the video, e.g. "video/mp4"
+     */
     public void addSoure(String source, String type){
         sources.add(new Source(source, type));
     }
 
+    public void setDefaultPoster(String posterUrl){
+        poster = posterUrl;
+    }
+
+    /**
+     * Plays the VAST video ad.
+     */
     public void play(){
         Intent intent = new Intent(context, VideoPlayer.class);
         intent.putExtra("BODY", getVideoJSMarkup());
@@ -52,14 +75,14 @@ class VASTVideo {
         str.append("</head>");
         str.append("<body style=\"margin:0px; background-color:black\">");
         str.append("<video id=\"pw_video\" class=\"video-js vjs-default-skin\" playsinline=\"true\" autoplay muted ");
-        str.append("controls preload=\"auto\" width=\"100%\" height=\"100%\"");
+        str.append("controls preload=\"auto\" width=\"100%\" height=\"100%\" ");
         if(this.poster != null){
             str.append(String.format("poster=\"%s\" ", this.poster));
         }
         str.append("data-setup='{ ");
         str.append("\"plugins\": { ");
         str.append("\"vastClient\": { ");
-        str.append(String.format("\"adTagUrl\": \"https://ssp-r.phunware.com/vast.spark?setID=%d&ID=%d&pid=%d\", ", this.zoneID, this.accountID, this.publisherID));
+        str.append(String.format("\"adTagUrl\": \"https://ssp-r.phunware.com/vasttemp.spark?setID=%d&ID=%d&pid=%d\", ", this.zoneID, this.accountID, this.publisherID));
         str.append("\"adCancelTimeout\": 5000, ");
         str.append("\"adsEnabled\": true ");
         str.append("} ");

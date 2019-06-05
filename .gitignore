@@ -1,0 +1,5 @@
+.gradle/
+.idea/
+phunware-android-sdk/build/
+sample/build/
+local.properties
