@@ -1,1 +1,1 @@
-include ':sample', ':phunware-android-sdk'
+include ':sample', ':phunware-android-sdk', ':sdktester'
