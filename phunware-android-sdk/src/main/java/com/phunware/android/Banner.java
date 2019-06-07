@@ -145,7 +145,13 @@ class Banner implements MRAIDListener, HTTPGetListener {
         return new PlacementResponseListener() {
             @Override
             public void success(PlacementResponse response) {
-                placement = response.getPlacements().get(0);
+                try{
+                    placement = response.getPlacements().get(0);
+                }catch(IndexOutOfBoundsException ex){
+                    banner.listener.onAdFetchFailed(ErrorCode.NO_INVENTORY);
+                    return;
+                }
+
                 if(placement == null){
                     banner.listener.onAdFetchFailed(ErrorCode.NO_INVENTORY);
                     return;

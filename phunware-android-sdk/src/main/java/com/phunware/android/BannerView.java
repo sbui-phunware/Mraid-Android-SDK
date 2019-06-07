@@ -144,4 +144,11 @@ public class BannerView extends Fragment {
         banner = new Banner(this);
         banner.initialize(request, position, context, listener, this);
     }
+
+    public void destroy(){
+        if(banner != null){
+            banner.destroy();
+            banner = null;
+        }
+    }
 }

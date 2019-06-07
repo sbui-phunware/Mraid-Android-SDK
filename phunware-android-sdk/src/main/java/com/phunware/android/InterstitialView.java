@@ -80,7 +80,12 @@ public class InterstitialView implements MRAIDListener {
         return new PlacementResponseListener() {
             @Override
             public void success(PlacementResponse response) {
-                interstitial.placement = response.getPlacements().get(0);
+                try {
+                    interstitial.placement = response.getPlacements().get(0);
+                }catch(IndexOutOfBoundsException ex){
+                    interstitial.listener.onAdFetchFailed(ErrorCode.NO_INVENTORY);
+                    return;
+                }
                 if(placement == null){
                     interstitial.listener.onAdFetchFailed(ErrorCode.NO_INVENTORY);
                     return;
