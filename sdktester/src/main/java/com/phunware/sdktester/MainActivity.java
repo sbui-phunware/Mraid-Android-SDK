@@ -2,15 +2,19 @@ package com.phunware.sdktester;
 
 import android.app.Activity;
 
+import android.content.pm.ActivityInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
+import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.phunware.android.*;
@@ -51,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
 
     private SDKConsumer sdk;
     private InterstitialView interstitial;
+
+    private Spinner spinnerOrientations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +103,11 @@ public class MainActivity extends AppCompatActivity {
         txtLog = findViewById(R.id.txtLog);
 
         selectedPosition = btnBottomCenter;
+
+        spinnerOrientations = (Spinner)findViewById(R.id.spinOrientation);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.orientations, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerOrientations.setAdapter(adapter);
 
         Phunware.initialize(this);
         sdk = new SDKConsumer(this);
@@ -212,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onGetVASTVideoClick(View v){
         if(!validateInputs(true)) return;
-        sdk.getVASTVideo(accountID, zoneID, publisherID, new VASTListener() {
+        sdk.getVASTVideo(accountID, zoneID, publisherID, spinnerOrientations.getSelectedItem().toString(), new VASTListener() {
             @Override
             public void onMute() {
                 log("VAST :: onMute");
@@ -307,6 +318,12 @@ public class MainActivity extends AppCompatActivity {
             public void onCloseLinear() {
                 log("VAST :: onCloseLinear");
                 super.onCloseLinear();
+            }
+
+            @Override
+            public void onClose(){
+                log("VAST :: onClose");
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
         });
     }

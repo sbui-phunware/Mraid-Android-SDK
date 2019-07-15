@@ -1,7 +1,10 @@
 package com.phunware.android;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
+
 import java.util.List;
 
 
@@ -14,6 +17,7 @@ public class VASTVideo {
     private String poster;// = "https://ssp-r.phunware.com/assets/blacksquare.png";
     private List<Source> sources;
     private static VASTListener listenerInstance;
+    private String orientation = "none";
 
     private void setListenerInstance(VASTListener listener){
         VASTVideo.listenerInstance = listener;
@@ -33,11 +37,12 @@ public class VASTVideo {
         }
     }
 
-    public VASTVideo(Context context, int accountID, int zoneID, int publisherID, VASTListener listener){
+    public VASTVideo(Context context, int accountID, int zoneID, int publisherID, String orientation, VASTListener listener){
         this.context = context;
         this.zoneID = zoneID;
         this.accountID = accountID;
         this.publisherID = publisherID;
+        this.orientation = orientation;
         setListenerInstance(listener);
     }
 
@@ -61,6 +66,17 @@ public class VASTVideo {
         Intent intent = new Intent(context, VideoPlayer.class);
         intent.putExtra("BODY", getVideoJSMarkup());
         context.startActivity(intent);
+        switch(this.orientation){
+            case "none":
+                ((Activity)context).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                break;
+            case "portrait":
+                ((Activity)context).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                break;
+            case "landscape":
+                ((Activity)context).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                break;
+        }
     }
 
     private String getVideoJSMarkup(){
@@ -70,8 +86,8 @@ public class VASTVideo {
         str.append("<meta name=\"viewport\" content=\"initial-scale=1.0\" />");
         str.append("<link href=\"http://vjs.zencdn.net/4.12/video-js.css\" rel=\"stylesheet\">");
         str.append("<script src=\"http://vjs.zencdn.net/4.12/video.js\"></script>");
-        str.append("<link href=\"http://ssp-r.phunware.com/videojs-vast-vpaid/bin/videojs.vast.vpaid.min.css\" rel=\"stylesheet\">");
-        str.append("<script src=\"http://ssp-r.phunware.com/videojs-vast-vpaid/bin/videojs_4.vast.vpaid.min.js\"></script>");
+        str.append("<link href=\"http://ssp-r.phunware.com/videojs-vast-vpaid/bin/videojs.vast.vpaid.min.css?v=5\" rel=\"stylesheet\">");
+        str.append("<script src=\"http://ssp-r.phunware.com/videojs-vast-vpaid/bin/videojs_4.vast.vpaid.min.js?v=5\"></script>");
         str.append("</head>");
         str.append("<body style=\"margin:0px; background-color:black\">");
         str.append("<video id=\"pw_video\" class=\"video-js vjs-default-skin\" playsinline=\"true\" autoplay muted ");
@@ -82,7 +98,7 @@ public class VASTVideo {
         str.append("data-setup='{ ");
         str.append("\"plugins\": { ");
         str.append("\"vastClient\": { ");
-        str.append(String.format("\"adTagUrl\": \"https://ssp-r.phunware.com/vasttemp.spark?setID=%d&ID=%d&pid=%d\", ", this.zoneID, this.accountID, this.publisherID));
+        str.append(String.format("\"adTagUrl\": \"http://ssp-r.phunware.com/vasttemp.spark?setID=%d&ID=%d&pid=%d\", ", this.zoneID, this.accountID, this.publisherID));
         str.append("\"adCancelTimeout\": 5000, ");
         str.append("\"adsEnabled\": true ");
         str.append("} ");

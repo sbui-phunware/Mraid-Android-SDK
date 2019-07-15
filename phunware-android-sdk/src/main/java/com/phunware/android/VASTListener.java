@@ -29,6 +29,6 @@ public abstract class VASTListener {
     //    public void onAdExpand(){}
     //    public void onAdCollapse(){}
     //    public void onMinimize(){}
-    //    public void onClose(){}
+    public void onClose(){}
     //    public void onOverlayViewDuration(){}
 }

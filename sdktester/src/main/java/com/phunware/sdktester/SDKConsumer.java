@@ -42,8 +42,8 @@ public class SDKConsumer {
         interstitial.initialize(request, context, listener);
     }
 
-    public void getVASTVideo(int accountID, int zoneID, int publisherID, VASTListener listener){
-        VASTVideo vast = new VASTVideo(context, accountID, zoneID, publisherID, listener);
+    public void getVASTVideo(int accountID, int zoneID, int publisherID, String orientation, VASTListener listener){
+        VASTVideo vast = new VASTVideo(context, accountID, zoneID, publisherID, orientation, listener);
         vast.play();
     }
 }
