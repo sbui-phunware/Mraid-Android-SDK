@@ -148,6 +148,7 @@ public class Phunware {
 
             @Override
             public void onFailure(Call<PlacementResponse> call, Throwable t) {
+
                 listener.error(t);
             }
         });

@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onGetVASTClick(View view){
-        VASTVideo vast = new VASTVideo(this, 174812, 6792, 61936, new VASTListener() {
+        VASTVideo vast = new VASTVideo(this, 174812, 6792, 61936, "none", new VASTListener() {
             @Override
             public void onMute() {
                 System.out.println("mute");

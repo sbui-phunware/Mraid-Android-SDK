@@ -327,6 +327,9 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
                 case "StaticResource":
                     endCard.staticResource = n.getFirstChild().getNodeValue();
                     break;
+                case "HTMLResource":
+                    endCard.htmlResource = n.getFirstChild().getNodeValue();
+                    break;
                 case "TrackingEvents":
                     NodeList events = n.getChildNodes();
                     for(int c = 0; c < events.getLength(); c++){
@@ -378,30 +381,32 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
             }
             i.remove();
         }
-        webView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        tapTime = new Date().getTime();
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        releaseTime = new Date().getTime();
-                        if(releaseTime - tapTime < tapDelay){
-                            Intent intent = new Intent(me, BrowserView.class);
-                            intent.putExtra("URL", endCard.clickThrough);
-                            me.startActivity(intent);
-                        }
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        break;
-                    default:
-                        break;
+        if(endCard.staticResource != null){
+            webView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    switch (motionEvent.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            tapTime = new Date().getTime();
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            releaseTime = new Date().getTime();
+                            if(releaseTime - tapTime < tapDelay){
+                                Intent intent = new Intent(me, BrowserView.class);
+                                intent.putExtra("URL", endCard.clickThrough);
+                                me.startActivity(intent);
+                            }
+                            break;
+                        case MotionEvent.ACTION_MOVE:
+                            break;
+                        default:
+                            break;
 
+                    }
+                    return false;
                 }
-                return false;
-            }
-        });
+            });
+        }
         initializeCloseButton();
     }
 
