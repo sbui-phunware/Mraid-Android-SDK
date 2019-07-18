@@ -182,6 +182,9 @@ class Banner implements MRAIDListener, HTTPGetListener {
     @SuppressLint("SetJavaScriptEnabled")
     private void initWebView(String body){
         webView = new WebView(context);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            webView.setWebContentsDebuggingEnabled(true);
+        }
         mraidHandler = new MRAIDHandler(this, context, fragment);
         if(!placement.getImageUrl().equals("")){
             initWebViewImage(webView, placement.getImageUrl());
@@ -293,7 +296,7 @@ class Banner implements MRAIDListener, HTTPGetListener {
 
     protected void removeFromParent(){
         // if resized and removed from parent, set normal dimensions (rotated screen)
-        if(mraidHandler.state == States.RESIZED){
+        if(mraidHandler != null && mraidHandler.state == States.RESIZED){
             setSize(new Size(defaultRect.width, defaultRect.height));
             mraidHandler.setMRAIDState(States.DEFAULT);
         }

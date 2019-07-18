@@ -1,7 +1,9 @@
 package com.phunware.android;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.Rect;
@@ -172,7 +174,7 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
                 break;
             case "skip":
                 listener.onSkip();
-                if(endCard != null && endCard.staticResource != null){
+                if(endCard != null && (endCard.staticResource != null || endCard.htmlResource != null)){
                     runOnUiThread(new Runnable(){
                         @Override
                         public void run(){
@@ -180,7 +182,9 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
                         }
                     });
                 } else {
+                    listener.onClose();
                     finish();
+                    overridePendingTransition(0,0);
                 }
                 break;
             case "playerExpand":
@@ -212,7 +216,7 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
 //                break;
             case "complete":
                 listener.onComplete();
-                if(endCard != null && endCard.staticResource != null){
+                if(endCard != null && (endCard.staticResource != null || endCard.htmlResource != null)){
                     runOnUiThread(new Runnable(){
                         @Override
                         public void run(){
@@ -220,7 +224,9 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
                         }
                     });
                 } else{
+                    listener.onClose();
                     finish();
+                    overridePendingTransition(0,0);
                 }
 
                 break;
@@ -243,9 +249,9 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
 //            case "minimize":
 //                listener.onMinimize();
 //                break;
-//            case "close":
-//                listener.onClose();
-//                break;
+            case "close":
+                listener.onClose();
+                break;
 //            case "overlayViewDuration":
 //                listener.onOverlayViewDuration();
 //                break;
@@ -321,6 +327,9 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
                 case "StaticResource":
                     endCard.staticResource = n.getFirstChild().getNodeValue();
                     break;
+                case "HTMLResource":
+                    endCard.htmlResource = n.getFirstChild().getNodeValue();
+                    break;
                 case "TrackingEvents":
                     NodeList events = n.getChildNodes();
                     for(int c = 0; c < events.getLength(); c++){
@@ -372,30 +381,32 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
             }
             i.remove();
         }
-        webView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        tapTime = new Date().getTime();
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        releaseTime = new Date().getTime();
-                        if(releaseTime - tapTime < tapDelay){
-                            Intent intent = new Intent(me, BrowserView.class);
-                            intent.putExtra("URL", endCard.clickThrough);
-                            me.startActivity(intent);
-                        }
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        break;
-                    default:
-                        break;
+        if(endCard.staticResource != null){
+            webView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    switch (motionEvent.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            tapTime = new Date().getTime();
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            releaseTime = new Date().getTime();
+                            if(releaseTime - tapTime < tapDelay){
+                                Intent intent = new Intent(me, BrowserView.class);
+                                intent.putExtra("URL", endCard.clickThrough);
+                                me.startActivity(intent);
+                            }
+                            break;
+                        case MotionEvent.ACTION_MOVE:
+                            break;
+                        default:
+                            break;
 
+                    }
+                    return false;
                 }
-                return false;
-            }
-        });
+            });
+        }
         initializeCloseButton();
     }
 
@@ -411,7 +422,11 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
             @Override
             public void onClick(View v){
             //if(closeClickable){
+                if(listener != null){
+                    listener.onClose();
+                }
                 finish();
+                overridePendingTransition(0,0);
             //}
             }
         });
@@ -438,30 +453,46 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
 
     private String getEndCardMarkup(){
         Rect windowRect = new Rect();
-
         webView.getWindowVisibleDisplayFrame(windowRect);
+        if(endCard.staticResource != null){
+            int h = MRAIDUtilities.convertPixelsToDp(windowRect.height(), this);
+            int w = MRAIDUtilities.convertPixelsToDp(windowRect.width(), this);
 
-        int h = MRAIDUtilities.convertPixelsToDp(windowRect.height(), this);
-        int w = MRAIDUtilities.convertPixelsToDp(windowRect.width(), this);
-
-        StringBuilder str = new StringBuilder();
-        str.append("<!DOCTYPE html>");
-        str.append("<html>");
-        str.append("<head>");
-        str.append("<style>");
-        str.append("body {");
-        str.append("background: url('" + endCard.staticResource + "') no-repeat fixed;");
-        str.append("background-size: contain;");
-        str.append("background-position: center;");
-        str.append("}");
-        str.append("</style>");
-        str.append("</script>");
-        str.append("</head>");
-        str.append("<body style=\"background-color:black; margin:0; padding:0; font-size:0px; width:" + w + "px; height:" + h + "px;\">");
-        str.append("</div>");
-        str.append("<body>");
-        str.append("</html>");
-        return str.toString();
+            StringBuilder str = new StringBuilder();
+            str.append("<!DOCTYPE html>");
+            str.append("<html>");
+            str.append("<head>");
+            str.append("<style>");
+            str.append("body {");
+            str.append("background: url('" + endCard.staticResource + "') no-repeat fixed;");
+            str.append("background-size: contain;");
+            str.append("background-position: center;");
+            str.append("}");
+            str.append("</style>");
+            str.append("</script>");
+            str.append("</head>");
+            str.append("<body style=\"background-color:black; margin:0; padding:0; font-size:0px; width:" + w + "px; height:" + h + "px;\">");
+            str.append("</div>");
+            str.append("<body>");
+            str.append("</html>");
+            return str.toString();
+        }
+        if(endCard.htmlResource != null){
+            if(endCard.htmlResource.contains("</html>")){
+                return endCard.htmlResource;
+            }
+            StringBuilder str = new StringBuilder();
+            str.append("<!DOCTYPE html>");
+            str.append("<html>");
+            str.append("<head>");
+            str.append("</head>");
+            str.append("<body>");
+            str.append(endCard.htmlResource);
+            str.append("</body>");
+            str.append("</html>");
+            return str.toString();
+        }
+        return "";
     }
 
 }
