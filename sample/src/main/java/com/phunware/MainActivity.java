@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     private BannerView bannerView;
     private InterstitialView interstitial;
-
+    VASTVideo vast;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onGetVASTClick(View view){
-        VASTVideo vast = new VASTVideo(this, 174812, 6792, 61936, "none", new VASTListener() {
+        VASTListener listener = new VASTListener() {
             @Override
             public void onMute() {
                 System.out.println("mute");
@@ -269,8 +269,25 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("closeLinear");
                 super.onCloseLinear();
             }
-        });
-        vast.play();
+
+            @Override
+            public void onReady() {
+                System.out.println("ready");
+                super.onReady();
+                vast.display();
+            }
+
+            @Override
+            public void onError() {
+                System.out.println("error");
+                super.onError();
+            }
+        };
+        vast = new VASTVideo(this, 174812, 6792, 61936, "none", listener);
+    }
+
+    public void displayVast(){
+
     }
 
     // dummy gender

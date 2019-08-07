@@ -222,6 +222,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onGetVASTVideoClick(View v){
         if(!validateInputs(true)) return;
+        log("Retrieving VAST video.  Will autoplay once ready.");
         sdk.getVASTVideo(accountID, zoneID, publisherID, spinnerOrientations.getSelectedItem().toString(), new VASTListener() {
             @Override
             public void onMute() {
@@ -323,6 +324,17 @@ public class MainActivity extends AppCompatActivity {
             public void onClose(){
                 log("VAST :: onClose");
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+            }
+
+            @Override
+            public void onReady(){
+                log("VAST :: onReady");
+                sdk.displayVASTVideo();
+            }
+
+            @Override
+            public void onError(){
+                log("VAST :: onError");
             }
         });
     }

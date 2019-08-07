@@ -31,4 +31,9 @@ public abstract class VASTListener {
     //    public void onMinimize(){}
     public void onClose(){}
     //    public void onOverlayViewDuration(){}
+
+    public void onBrowserOpening(){}
+    public void onBrowserClosing(){}
+    public void onReady(){}
+    public void onError(){}
 }

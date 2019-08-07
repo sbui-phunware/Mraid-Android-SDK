@@ -19,6 +19,7 @@ import java.util.function.Function;
 public class SDKConsumer {
     Activity context;
     BannerView banner;
+    VASTVideo vastVideo;
     protected InterstitialView interstitial;
 
     public SDKConsumer(Activity context){
@@ -43,7 +44,11 @@ public class SDKConsumer {
     }
 
     public void getVASTVideo(int accountID, int zoneID, int publisherID, String orientation, VASTListener listener){
-        VASTVideo vast = new VASTVideo(context, accountID, zoneID, publisherID, orientation, listener);
-        vast.play();
+        vastVideo = new VASTVideo(context, accountID, zoneID, publisherID, orientation, listener);
+        vastVideo.preload();
+    }
+
+    public void displayVASTVideo(){
+        vastVideo.display();
     }
 }
