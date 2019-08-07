@@ -1,6 +1,7 @@
 package com.phunware.android;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -15,27 +16,18 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
     VideoEnabledWebView webView;
@@ -43,6 +35,7 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
     VASTListener listener;
     VASTCompanion endCard;
     AppCompatActivity me = this;
+
 
     private TextView closeButton;
     private boolean closeButtonVisible = false;
@@ -57,9 +50,23 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
         setContentView(R.layout.video_player);
         String url = getIntent().getStringExtra("URL");
         String body = getIntent().getStringExtra("BODY");
+        boolean preloaded = getIntent().getBooleanExtra("PRELOADED", false);
+        boolean closeButtonRequired = getIntent().getBooleanExtra("CLOSEBUTTONREQUIRED", true);
         listener = VASTVideo.getListenerInstance();
-        // Save the web view
-        webView = findViewById(R.id.webView);
+
+        if(preloaded){
+            webView = findViewById(R.id.webView);
+            ViewParent parent = webView.getParent();
+            ((ViewGroup)parent).removeView(webView);
+            webView = VASTVideo.getWebView();
+            webView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+            ((ViewGroup)parent).addView(webView);
+            //((ViewGroup) this.findViewById(android.R.id.content)).addView(webView);
+            //addContentView(webView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        }else {
+            // Save the web view
+            webView = findViewById(R.id.webView);
+        }
         // Initialize the VideoEnabledWebChromeClient and set event handlers
         View nonVideoLayout = findViewById(R.id.nonVideoLayout); // Your own view, read class comments
         ViewGroup videoLayout = findViewById(R.id.videoLayout); // Your own view, read class comments
@@ -73,7 +80,6 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
             {
 
             }
-
         };
         webChromeClient.setOnToggledFullscreen(new VideoEnabledWebChromeClient.ToggledFullscreenCallback()
         {
@@ -112,14 +118,19 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
         // Call private class InsideWebViewClient
         webView.setWebViewClient(new InsideWebViewClient());
 
-        // Navigate anywhere you want, but consider that this classes have only been tested on YouTube's mobile site
-        if(url != null){
-            webView.loadUrl(url);
+        if(!preloaded){
+            if(url != null){
+                webView.loadUrl(url);
+            }
+            else if(body != null){
+                webView.loadDataWithBaseURL("http://ssp-r.phunware.com", body, "text/html; charset=utf-8", "UTF-8", "");
+            }
+        }else{
+            if(closeButtonRequired){
+                initializeCloseButton();
+            }
+            webView.loadUrl("javascript:document.getElementById('av_video').player.play();");
         }
-        else if(body != null){
-            webView.loadDataWithBaseURL("http://ssp-r.phunware.com", body, "text/html; charset=utf-8", "UTF-8", "");
-        }
-
     }
 
     private class InsideWebViewClient extends WebViewClient {
@@ -127,18 +138,7 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
         // Force links to be opened inside WebView and not in Default Browser
         // Thanks http://stackoverflow.com/a/33681975/1815624
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            if(url.contains("vast://vastresponse?xml=")){
-                String raw = url.replace("vast://vastresponse?xml=", "");
-                try {
-                    String xml = URLDecoder.decode(raw, "UTF-8");
-                    parseVASTContent(xml);
-                }
-                catch(UnsupportedEncodingException ex){
-                    Log.e("\"Ads/Phunware\"", "Unsupported encoding on VAST XML");
-                }
-                return false;
-            }
-            else if(url.contains("vast://")){
+            if(url.contains("vast://")){
                 handleEvent(url);
                 return false;
             }
@@ -174,6 +174,7 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
                 break;
             case "skip":
                 listener.onSkip();
+                endCard = VASTVideo.getEndCard();
                 if(endCard != null && (endCard.staticResource != null || endCard.htmlResource != null)){
                     runOnUiThread(new Runnable(){
                         @Override
@@ -216,6 +217,7 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
 //                break;
             case "complete":
                 listener.onComplete();
+                endCard = VASTVideo.getEndCard();
                 if(endCard != null && (endCard.staticResource != null || endCard.htmlResource != null)){
                     runOnUiThread(new Runnable(){
                         @Override
@@ -233,28 +235,11 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
             case "closeLinear":
                 listener.onCloseLinear();
                 break;
-//                                future additions
-//            case "creativeView":
-//                listener.onCreativeView();
-//                break;
-//            case "acceptInvitation":
-//                listener.onAcceptInvitation();
-//                break;
-//            case "adExpand":
-//                listener.onAdExpand();
-//                break;
-//            case "adCollapse":
-//                listener.onAdCollapse();
-//                break;
-//            case "minimize":
-//                listener.onMinimize();
-//                break;
             case "close":
                 listener.onClose();
                 break;
-//            case "overlayViewDuration":
-//                listener.onOverlayViewDuration();
-//                break;
+            case "ready":
+                listener.onReady();
         }
     }
 
@@ -281,89 +266,6 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
         }
     }
 
-
-    private void parseVASTContent(String str){
-        final String body = str;
-        Node bestFit = null;
-        // deserialize
-        try{
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(new InputSource(new StringReader(str)));
-            NodeList nodes = doc.getElementsByTagName("Companion");
-            if(nodes.getLength() > 0){
-                bestFit = findBestCompanion(nodes);
-            }
-
-            nodes = doc.getElementsByTagName("Linear");
-            if(nodes.getLength() > 0){
-                Node offset = nodes.item(0).getAttributes().getNamedItem("skipoffset");
-                if(offset == null){
-                    initializeCloseButton();
-                }
-            }
-        }catch(Exception ex){
-            System.out.println("PW - Problem finding end card companion.");
-        }
-
-        if(bestFit != null) {
-            constructEndCard(bestFit);
-//            for testing, immediately add end card
-//            runOnUiThread(new Runnable(){
-//                @Override
-//                public void run(){
-//                    displayEndCard();
-//                }
-//            });
-        }
-    }
-
-    private void constructEndCard(Node node){
-        endCard = new VASTCompanion();
-        NodeList children = node.getChildNodes();
-        for(int i = 0; i < children.getLength(); i++){
-            Node n = children.item(i);
-            switch(n.getNodeName()){
-                case "StaticResource":
-                    endCard.staticResource = n.getFirstChild().getNodeValue();
-                    break;
-                case "HTMLResource":
-                    endCard.htmlResource = n.getFirstChild().getNodeValue();
-                    break;
-                case "TrackingEvents":
-                    NodeList events = n.getChildNodes();
-                    for(int c = 0; c < events.getLength(); c++){
-                        endCard.trackingEvents.put(events.item(c).getAttributes().getNamedItem("event").getNodeValue(), events.item(c).getFirstChild().getNodeValue());
-                    }
-                    break;
-                case "CompanionClickThrough":
-                    endCard.clickThrough = n.getFirstChild().getNodeValue();
-                    break;
-                default:break;
-            }
-        }
-    }
-
-    private Node findBestCompanion(NodeList list){
-        Rect rect = new Rect();
-
-        webView.getWindowVisibleDisplayFrame(rect);
-
-        Node curBest = null;
-        float aspectRatio = (float)MRAIDUtilities.convertPixelsToDp(rect.width(), this) / (float)MRAIDUtilities.convertPixelsToDp(rect.height(), this);
-        float closestRatio = 0f;
-        for(int i=0; i < list.getLength(); i++){
-            NamedNodeMap map = list.item(i).getAttributes();
-            int w = Integer.parseInt(map.getNamedItem("width").getNodeValue());
-            int h = Integer.parseInt(map.getNamedItem("height").getNodeValue());
-            float r = (float)w / (float)h;
-            if(i == 0 || Math.abs(aspectRatio - r) < closestRatio){
-                closestRatio = r;
-                curBest = list.item(i);
-            }
-        }
-        return curBest;
-    }
 
     @SuppressLint("ClickableViewAccessibility")
     private void displayEndCard(){
