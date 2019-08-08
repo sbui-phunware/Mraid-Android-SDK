@@ -29,7 +29,7 @@ import android.widget.FrameLayout;
 import java.util.Calendar;
 
 /**
- * A Banner ad.  Can be and MRAID or standard Image ad.
+ * A Banner ad.  Can be an MRAID or standard Image ad.
  */
 class Banner implements MRAIDListener, HTTPGetListener {
     private ViewGroup container; // use a single common parent to persist whatever is inside on screen rotations.  eg. close button, secondary webview.
