@@ -30,7 +30,9 @@ import java.util.TimerTask;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-
+/**
+ * A VAST video ad object.
+ */
 public class VASTVideo {
 
     private Context context;
@@ -123,7 +125,7 @@ public class VASTVideo {
 
 
     /**
-     * Preload the VAST video ad.  Ready will be called on the VASTListener when the ad is ready to display
+     * Preload the VAST video ad.  onReady will be called on the VASTListener when the ad is ready to display
      * Once the ad is ready, you may call display() to show it.
      */
     public void preload(){
@@ -197,7 +199,7 @@ public class VASTVideo {
     }
 
     /**
-     * Show the VAST  (Call when ready == true)
+     * Show the VAST ad. (Call when ready == true)
      */
     public void display(){
         if(!this.ready){
