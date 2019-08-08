@@ -1,6 +1,11 @@
 # phunware-android-mraid-sdk v0.9 - end user
 
+The Phunware Android SDK allows you to insert Phunware ads into your app.  This includes Banners, Interstitials and VAST Video ads.
+
+MRAID 2.0 is supported for Banners and Interstitials.
+
 Requirements:
+
 - minSdkVersion: 14
 - compileSdkVersion: 27
 - targetSdkVersion: 26
@@ -246,9 +251,29 @@ Create one like this:
 
         @Override
         public void onReady(){
+            // you can display your VAST ad at any point after this is called.
         }
 
         @Override
         public void onError(){
+            // handle errors
         }
     }
+
+VAST ads must be preloaded, similarly to how interstitials work.  After the ad is loaded and prepared, the `onReady()` function will be called.  You will notice that the `play()` and `pause()` functions will be called first.  This is because the web view, in which the video will be played is loaded off screen, to make a smoother transition to the ad.
+
+After the `onReady()` function is called, you can call the `display()` function on the VAST object to display the ad.
+
+#### VAST Code Example
+
+    // keep an instance of VASTVideo on your activity class, then intialize it like this:
+    //      orientation = "none", "portrait", "landscape", or null
+    vastVideo = new VASTVideo(context, accountID, zoneID, publisherID, orientation, listener);
+    vastVideo.preload();
+
+    // after isReady()
+    vastVideo.display();
+
+If you try to display the ad before it is ready, nothing will happen.
+
+You will need to do this process each time you want an ad to be displayed, so that your impressions are counted correctly.
