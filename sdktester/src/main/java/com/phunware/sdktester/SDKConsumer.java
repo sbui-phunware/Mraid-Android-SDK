@@ -2,18 +2,13 @@ package com.phunware.sdktester;
 
 import android.app.Activity;
 import android.app.FragmentManager;
-import android.widget.TextView;
 
 import com.phunware.android.AdListener;
 import com.phunware.android.AdRequest;
 import com.phunware.android.BannerView;
-import com.phunware.android.ErrorCode;
 import com.phunware.android.InterstitialView;
 import com.phunware.android.VASTListener;
 import com.phunware.android.VASTVideo;
-
-import java.util.Date;
-import java.util.function.Function;
 
 
 public class SDKConsumer {
