@@ -284,6 +284,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         vast = new VASTVideo(this, 174812, 6792, 61936, "none", listener);
+        vast.preload();
     }
 
     public void displayVast(){
