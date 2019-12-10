@@ -237,6 +237,7 @@ public class VideoPlayer extends AppCompatActivity implements HTTPGetListener {
                 break;
             case "close":
                 listener.onClose();
+                finish();
                 break;
             case "ready":
                 listener.onReady();
