@@ -3,3 +3,4 @@
 phunware-android-sdk/build/
 sample/build/
 local.properties
+*.li

@@ -132,6 +132,9 @@ public class VASTVideo {
         ready = false;
         displayed = false;
         startTimer();
+        if(webViewInstance != null){
+            webViewInstance.destroy();
+        }
         webViewInstance = new VideoEnabledWebView(context);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             webViewInstance.setWebContentsDebuggingEnabled(true);
