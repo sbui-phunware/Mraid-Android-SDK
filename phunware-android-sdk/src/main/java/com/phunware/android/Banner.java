@@ -107,6 +107,9 @@ class Banner implements MRAIDListener, HTTPGetListener {
         if(container.getParent() != null) {
             ((ViewGroup) container.getParent()).removeView(container);
         }
+        if(mraidHandler != null){
+            mraidHandler = null;
+        }
         container = null;
     }
 
@@ -341,20 +344,25 @@ class Banner implements MRAIDListener, HTTPGetListener {
         if(position.contains("top")){
             grav = grav | Gravity.TOP;
         }
+        if(position.contains("bottom")){
+            grav = grav | Gravity.BOTTOM;
+        }
         if(position.contains("left")){
             grav = grav | Gravity.LEFT;
         }
         if(position.contains("right")){
             grav = grav | Gravity.RIGHT;
         }
-        if(position.contains("bottom")){
-            grav = grav | Gravity.BOTTOM;
-        }
         if(position == Positions.CENTER){
             grav = grav | Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
         }
         else if(position.contains("center")){
-            grav = grav | Gravity.CENTER_HORIZONTAL;
+            if(!position.contains("top") && !position.contains("bottom")){
+                grav = grav | Gravity.CENTER_VERTICAL;
+            }
+            if(!position.contains("left") && !position.contains("right")){
+                grav = grav | Gravity.CENTER_HORIZONTAL;
+            }
         }
         if(position.contains("status-bar")){
             marginTop += getStatusBarHeight();
