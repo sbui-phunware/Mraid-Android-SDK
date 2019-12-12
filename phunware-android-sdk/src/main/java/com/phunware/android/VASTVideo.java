@@ -268,6 +268,7 @@ public class VASTVideo {
             switch(n.getNodeName()){
                 case "StaticResource":
                     endCard.staticResource = n.getFirstChild().getNodeValue();
+                    endCard.staticResource = endCard.staticResource.replace("http://", "https://"); // browser won't allow http image backgrounds
                     break;
                 case "HTMLResource":
                     endCard.htmlResource = n.getFirstChild().getNodeValue();
