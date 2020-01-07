@@ -345,14 +345,16 @@ public class VASTVideo {
     }
 
     private String getVideoJSMarkup(){
+        String baseUrl = "ssp-r.phunware.com";
+
         StringBuilder str = new StringBuilder();
         str.append("<html>");
         str.append("<head>");
         str.append("<meta name=\"viewport\" content=\"initial-scale=1.0\" />");
         str.append("<link href=\"http://vjs.zencdn.net/4.12/video-js.css\" rel=\"stylesheet\">");
         str.append("<script src=\"http://vjs.zencdn.net/4.12/video.js\"></script>");
-        str.append("<link href=\"http://ssp-r.phunware.com/videojs-vast-vpaid/bin/videojs.vast.vpaid.min.css\" rel=\"stylesheet\">");
-        str.append("<script src=\"http://ssp-r.phunware.com/videojs-vast-vpaid/bin/videojs_4.vast.vpaid.min.js?v=10\"></script>");
+        str.append(String.format("<link href=\"http://%s/videojs-vast-vpaid/bin/videojs.vast.vpaid.min.css\" rel=\"stylesheet\">", baseUrl));
+        str.append(String.format("<script src=\"http://%s/videojs-vast-vpaid/bin/videojs_4.vast.vpaid.min.js?v=26\"></script>", baseUrl));
         str.append("</head>");
         str.append("<body style=\"margin:0px; background-color:black\">");
         str.append("<video id=\"av_video\" class=\"video-js vjs-default-skin\" playsinline=\"true\" autoplay muted ");
@@ -363,7 +365,7 @@ public class VASTVideo {
         str.append("data-setup='{ ");
         str.append("\"plugins\": { ");
         str.append("\"vastClient\": { ");
-        str.append(String.format("\"adTagUrl\": \"http://ssp-r.phunware.com/vasttemp.spark?setID=%d&ID=%d&pid=%d\", ", this.zoneID, this.accountID, this.publisherID));
+        str.append(String.format("\"adTagUrl\": \"http://%s/vast.spark?setID=%d&ID=%d&pid=%d\", ", baseUrl, this.zoneID, this.accountID, this.publisherID));
         str.append("\"adCancelTimeout\": 5000, ");
         str.append("\"adsEnabled\": true ");
         str.append("} ");
@@ -374,7 +376,7 @@ public class VASTVideo {
                 str.append(String.format("<source src=\"%s\" type='%s'/>", s.source, s.type));
             }
         }else{
-            str.append("<source src=\"http://ssp-r.phunware.com/assets/blank.mp4\" type='video/mp4'/>");
+            str.append(String.format("<source src=\"http://%s/assets/blank.mp4\" type='video/mp4'/>", baseUrl));
         }
         str.append("<p class=\"vjs-no-js\">");
         str.append("To view this video please enable JavaScript, and consider upgrading to a web browser that");
