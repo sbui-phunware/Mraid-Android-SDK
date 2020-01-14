@@ -45,7 +45,7 @@ public class BannerView extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        if(banner != null && banner.getMRAIDHandler() != null){
+        if(banner != null && banner.getMRAIDHandler() != null && !banner.isWebViewProvided){
             banner.addToRoot();
         }
     }

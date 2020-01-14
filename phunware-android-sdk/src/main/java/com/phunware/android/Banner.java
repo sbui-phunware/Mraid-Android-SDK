@@ -38,7 +38,7 @@ class Banner implements MRAIDListener, HTTPGetListener {
     private boolean absolutePositioned = false;
     private boolean windowIsFullscreen = false;
     private MRAIDHandler mraidHandler;
-    private boolean isWebViewProvided = false;
+    public boolean isWebViewProvided = false;
 
     private boolean isMRAID = false;
     private Placement placement;
