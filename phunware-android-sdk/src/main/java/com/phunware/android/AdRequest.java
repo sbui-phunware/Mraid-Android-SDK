@@ -26,6 +26,7 @@ public class AdRequest {
     public static final int GENDER_FEMALE = 2;
     private int accountID;
     private int zoneID;
+    private Set<String> keywords;
 
     /**
      * Creates a new {@link AdRequest}.
@@ -35,15 +36,17 @@ public class AdRequest {
         this.zoneID = zoneID;
     }
 
-    /* SETTERS */
-
     /**
      * Sets keywords for targeting purposes.
      *
      * @param keywords A set of keywords to pass to mediation.
      */
     public void setKeywords(Set<String> keywords) {
-        // Normally we'd save the keywords. But since this is a sample network, we'll do nothing.
+        this.keywords = keywords;
+    }
+
+    public Set<String> getKeywords(){
+        return this.keywords;
     }
 
     /**

@@ -12,6 +12,8 @@ import java.util.Calendar;
  * If you want to get the placement directly, and create your own way of displaying them, you can do so using this object.
  */
 public class PlacementRequest {
+
+    private PlacementRequestConfig config;
     /**
      * Creates a PlacementRequest
      * @param request AdRequest object containing all required mediation data.
@@ -167,6 +169,10 @@ public class PlacementRequest {
         requestBuilder.setCarrier(networkInfo.carrierName);
         requestBuilder.setCarrierCode(networkInfo.carrierCode);
 
+        if(request.getKeywords() != null){
+            requestBuilder.setKeywords(request.getKeywords());
+        }
+
         // Compliance
         requestBuilder.setCoppa(request.getCoppa());
 
@@ -179,6 +185,11 @@ public class PlacementRequest {
         final PlacementRequestConfig config = requestBuilder.build();
 
         Log.d("Ads/Phunware", "Requesting ad from Phunware...");
+        this.config = config;
         phunwareSDK.requestPlacement(config, placementListener);
+    }
+
+    protected static void Refresh(String url, PlacementResponseListener placementListener){
+        Phunware.getInstance().refreshPlacement(url, placementListener);
     }
 }
