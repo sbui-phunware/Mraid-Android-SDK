@@ -213,9 +213,11 @@ class Banner implements MRAIDListener, HTTPGetListener {
                         }, (long)refreshTime*1000);
                     }
                 }else{
-                    refreshTimer.cancel();
-                    refreshTime = 0;
-                    refreshUrl = "";
+                    if(refreshTimer != null){
+                        refreshTimer.cancel();
+                        refreshTime = 0;
+                        refreshUrl = "";
+                    }
                 }
 
                 if(body == null){
