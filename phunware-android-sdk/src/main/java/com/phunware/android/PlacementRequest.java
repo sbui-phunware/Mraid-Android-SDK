@@ -13,7 +13,7 @@ import java.util.Calendar;
  */
 public class PlacementRequest {
 
-    private PlacementRequestConfig config;
+    protected PlacementRequestConfig config;
     /**
      * Creates a PlacementRequest
      * @param request AdRequest object containing all required mediation data.
@@ -104,7 +104,12 @@ public class PlacementRequest {
 
 
         // Begin request build.
-        PlacementRequestConfig.Builder requestBuilder = new PlacementRequestConfig.Builder(request.getAccountID(), request.getZoneID());
+        PlacementRequestConfig.Builder requestBuilder;
+        if(request.getWidth() > 0 && request.getHeight() > 0){
+            requestBuilder = new PlacementRequestConfig.Builder(request.getAccountID(), request.getZoneID(), request.getWidth(), request.getHeight());
+        }else{
+            requestBuilder = new PlacementRequestConfig.Builder(request.getAccountID(), request.getZoneID());
+        }
 
         // Proper User Agent
         requestBuilder.setUserAgent(new WebView(context).getSettings().getUserAgentString());
@@ -187,9 +192,5 @@ public class PlacementRequest {
         Log.d("Ads/Phunware", "Requesting ad from Phunware...");
         this.config = config;
         phunwareSDK.requestPlacement(config, placementListener);
-    }
-
-    protected static void Refresh(String url, PlacementResponseListener placementListener){
-        Phunware.getInstance().refreshPlacement(url, placementListener);
     }
 }
