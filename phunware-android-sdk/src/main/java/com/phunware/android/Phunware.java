@@ -43,8 +43,7 @@ public class Phunware {
 
     private boolean isInitialized = false;
 
-    //private String apiHostname = "ssp-r.phunware.com";
-    private String apiHostname = "servedbyadbutler.com";
+    private String apiHostname = "ssp-r.phunware.com";
     private String apiAppVersion = "adserve";
     private boolean personalAdsAllowed = true; // AdMob as an example assumes personal data can be sent by default, unless flagged "npa=1" in request
 
