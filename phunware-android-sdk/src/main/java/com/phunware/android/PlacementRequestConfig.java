@@ -1,9 +1,13 @@
 package com.phunware.android;
 
 import android.os.Bundle;
+import android.util.ArrayMap;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 
+import java.net.URLEncoder;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -87,6 +91,11 @@ class PlacementRequestConfig {
     private String rcb;
 
     private Bundle customExtras;
+
+    @SerializedName("_abdk_json")
+    private ArrayMap map;
+
+    private transient Bundle dataKeys;
 
     /**
      * The account ID for this request.
@@ -267,6 +276,9 @@ class PlacementRequestConfig {
         this.rcb = rcb;
     }
 
+    public Bundle getDataKeys() {
+        return dataKeys;
+    }
 
     /**
      * Builder to configure the parameters used in requesting a Placement.
@@ -306,6 +318,7 @@ class PlacementRequestConfig {
         private String appPackageName;
         private String appVersion;
         private Bundle customExtras;
+        private Bundle dataKeys;
 
         /**
          * @param accountId The account ID for this request.
@@ -505,6 +518,11 @@ class PlacementRequestConfig {
             return this;
         }
 
+        public Builder setDataKeys(Bundle dataKeys) {
+            this.dataKeys = dataKeys;
+            return this;
+        }
+
         /**
          * @return The PlacementRequestConfig that can be used in requesting a Placement.
          */
@@ -548,6 +566,16 @@ class PlacementRequestConfig {
         appPackageName = builder.appPackageName;
         appVersion = builder.appVersion;
         customExtras = builder.customExtras;
+        dataKeys = builder.dataKeys;
+        if(dataKeys != null && !dataKeys.isEmpty()){
+            Gson b = new GsonBuilder().create();
+            String temp = b.toJson(dataKeys);
+            BundleMap bm = b.fromJson(temp, BundleMap.class);
+            map = bm.mMap;
+        }
+    }
+
+    class BundleMap {
+        public ArrayMap mMap;
     }
 }
-
