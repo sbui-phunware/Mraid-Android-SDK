@@ -178,6 +178,10 @@ public class PlacementRequest {
             requestBuilder.setKeywords(request.getKeywords());
         }
 
+        if(null != request.getDataKeys()){
+            requestBuilder.setDataKeys(request.getDataKeys());
+        }
+
         // Compliance
         requestBuilder.setCoppa(request.getCoppa());
 
